@@ -101,10 +101,10 @@ body {
     }
     #analyzer-configuration dt {
         float: left;
-        width: 110px;
+        width: 130px;
     }
     #analyzer-configuration dd {
-        margin-left: 110px;
+        margin-left: 130px;
     }
     #analyzer-configuration select {
         width: 60px;

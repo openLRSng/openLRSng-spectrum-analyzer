@@ -67,6 +67,55 @@ $(document).ready(function() {
         $(this).data("clicks", !clicks);
     });     
     
+    // Analyzer configuration UI hooks
+    $('div#analyzer-configuration select').change(function() {
+        start_frequency = parseInt($('#start-frequency').val());
+        stop_frequency = parseInt($('#stop-frequency').val());
+        average_samples = parseInt($('#average-samples').val());
+        step_size = parseInt($('#step-size').val());
+    });
+    
+    // Populate configuration selects    
+    var e_start_frequency = $('#start-frequency').html('');
+    for (var i = 400; i < 470; i++) {
+        e_start_frequency.append($("<option/>", {
+            value: i * 10000,
+            text: i
+        }));        
+    }
+    e_start_frequency.val(415 * 10000);
+    
+    var e_stop_frequency = $('#stop-frequency').html('');
+    for (var i = 401; i < 471; i++) {
+        e_stop_frequency.append($("<option/>", {
+            value: i * 10000,
+            text: i
+        }));        
+    }
+    e_stop_frequency.val(445 * 10000);
+
+    var e_average_samples = $('#average-samples').html('');
+    for (var i = 100; i < 1501; i += 100) {
+        
+        e_average_samples.append($("<option/>", {
+            value: i,
+            text: i
+        }));        
+    }
+    
+    var e_step_size = $('#step-size').html('');
+    for (var i = 5; i < 1001; i += 5) {
+        e_step_size.append($("<option/>", {
+            value: i,
+            text: i
+        }));        
+    }
+    e_step_size.val('5');
+    
+    // manually fire change event so variables get populated
+    $('div#analyzer-configuration select').change();
+    
+    
     // Plot
     element_plot = document.getElementById("plot");
     
