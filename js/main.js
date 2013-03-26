@@ -2,6 +2,14 @@ var connectionId = -1;
 var port_list;
 var serial_poll = 0; // iterval timer refference
 
+var element_plot;
+var plot;
+
+var plot_data = new Array(3);
+plot_data[0] = new Array();
+plot_data[1] = new Array();
+plot_data[2] = new Array();
+
 $(document).ready(function() {
     port_picker = $('div#port-picker .port select');
     baud_picker = $('div#port-picker #baud');
@@ -58,6 +66,36 @@ $(document).ready(function() {
         
         $(this).data("clicks", !clicks);
     });     
+    
+    // Plot
+    element_plot = document.getElementById("plot");
+    
+    plot_options = {
+        colors: ['#d60606', '#00a8f0', '#c0d800'],
+        shadowSize: 0,
+        yaxis : {
+            min: 0,
+            max: 150,
+            autoscale: true,
+        },
+        xaxis : {
+            noTicks : 10,
+            max : 44000,
+            min : 43000
+        },
+        grid : {
+            backgroundColor: "#FFFFFF"
+        },
+        legend : {
+            position: "wn",
+            backgroundOpacity: 0
+        }
+    }
+
+    plot = Flotr.draw(element_plot, [ 
+        {data: plot_data[0], label: "RSSI - MAX"}, 
+        {data: plot_data[1], label: "RSSI - AVERAGE"}, 
+        {data: plot_data[2], label: "RSSI - MIN"} ], plot_options);      
     
 });
 
@@ -146,6 +184,24 @@ function process_message(message_buffer) {
     update_plot(message);
 }
 
+var last_frequency = 0;
 function update_plot(message) {
-    console.log(message);
+    if (last_frequency > message.frequency) { // new series of data
+        plot_data[0] = new Array();
+        plot_data[1] = new Array();
+        plot_data[2] = new Array();
+    }
+    
+    last_frequency = message.frequency;
+    
+    plot_data[0].push([message.frequency, message.RSSI_MAX]);
+    plot_data[1].push([message.frequency, message.RSSI_SUM]);
+    plot_data[2].push([message.frequency, message.RSSI_MIN]);
+    
+    
+    // redraw with latest data
+    plot = Flotr.draw(element_plot, [ 
+        {data: plot_data[0], label: "RSSI - MAX", lines: {fill: false}}, 
+        {data: plot_data[1], label: "RSSI - AVERAGE", lines: {fill: false}}, 
+        {data: plot_data[2], label: "RSSI - MIN", lines: {fill: true}} ], plot_options);       
 }

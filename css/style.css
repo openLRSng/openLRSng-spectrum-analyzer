@@ -22,10 +22,17 @@ body {
     width: 900px;
     height: 400px;
     
-    margin: auto;
+    margin-left: 20px;
     margin-bottom: 20px;
+}
+
+/* Flotr related styles */
+.flotr-legend {
+    padding: 2px;
+    left: 775px;
+    top: 10px;
+    border: 0;
     
-    border: 1px solid red;
     background-color: white;
 }
 
