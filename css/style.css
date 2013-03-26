@@ -11,3 +11,32 @@ body {
     -webkit-text-size-adjust: 100%;
     background-color: #dfddd0;
 }
+
+#main-wrapper {
+    width: 960px;
+    margin: auto;
+    margin-top: 20px;
+}
+
+#plot {
+    width: 900px;
+    height: 400px;
+    
+    margin: auto;
+    margin-bottom: 20px;
+    
+    border: 1px solid red;
+    background-color: white;
+}
+
+#port-picker {
+    float: left;
+}
+
+#analyzer-configuration {
+    float: left;
+}
+
+#plot-configuration {
+    float: left;
+}
