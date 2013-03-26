@@ -74,7 +74,7 @@ $(document).ready(function() {
         average_samples = parseInt($('#average-samples').val());
         step_size = parseInt($('#step-size').val());
         
-        send_current_configuration();
+        send_current_configuration();     
     });
     
     // Populate configuration selects    
@@ -85,7 +85,6 @@ $(document).ready(function() {
             text: i
         }));        
     }
-    e_start_frequency.val(415);
     
     var e_stop_frequency = $('#stop-frequency').html('');
     for (var i = 401; i < 471; i++) {
@@ -94,7 +93,6 @@ $(document).ready(function() {
             text: i
         }));        
     }
-    e_stop_frequency.val(445);
 
     var e_average_samples = $('#average-samples').html('');
     for (var i = 100; i < 1501; i += 100) {
@@ -106,17 +104,20 @@ $(document).ready(function() {
     }
     
     var e_step_size = $('#step-size').html('');
-    for (var i = 5; i < 1001; i += 5) {
+    for (var i = 1; i < 100; i += 1) {
         e_step_size.append($("<option/>", {
             value: i,
             text: i
         }));        
     }
+    
+    // Define some defualt values
+    e_start_frequency.val(425);
+    e_stop_frequency.val(435);
     e_step_size.val('5');
     
     // manually fire change event so variables get populated
-    $('div#analyzer-configuration select').change();
-    
+    $('div#analyzer-configuration select').change(); 
     
     // Plot
     element_plot = document.getElementById("plot");
@@ -132,7 +133,12 @@ $(document).ready(function() {
         xaxis : {
             noTicks : 10,
             max : 44000,
-            min : 43000
+            min : 43000,
+            tickFormatter: function(x) {
+                var x = parseInt(x);
+                x /= 100;
+                return x + ' MHz';
+            }
         },
         grid : {
             backgroundColor: "#FFFFFF"
@@ -146,12 +152,11 @@ $(document).ready(function() {
     plot = Flotr.draw(element_plot, [ 
         {data: plot_data[0], label: "RSSI - MAX"}, 
         {data: plot_data[1], label: "RSSI - AVERAGE"}, 
-        {data: plot_data[2], label: "RSSI - MIN"} ], plot_options);      
-    
+        {data: plot_data[2], label: "RSSI - MIN"} ], plot_options);       
 });
 
 function readPoll() {
-    chrome.serial.read(connectionId, 12, onCharRead);
+    chrome.serial.read(connectionId, 256, onCharRead);
 }
 
 function onOpen(openInfo) {
@@ -172,32 +177,39 @@ function onOpen(openInfo) {
 
 function onClosed(result) {
     if (result == 1) {
+        connectionId = -1; // reset connection id
         console.log('Connection closed successfully.');
     } else {
         console.log('There was an error that happened during "connection-close" procedure.');
     }
 }
 
-function send_current_configuration() {
-    /* buffer ArrayBuffer size depends on the configuration length
-    // we need to send over this 4 variables (as ascii strings, with "," divider)
-    start_frequency
-    stop_frequency
-    average_samples
-    step_size
-    
-    var bufferOut = new ArrayBuffer(6);
-    var bufView = new Uint8Array(bufferOut);  
+function send_current_configuration() {    
+    if (connectionId > 0) {    
+        var ascii = {
+            start_frequency: start_frequency.toString(),
+            stop_frequency: stop_frequency.toString(),
+            average_samples: average_samples.toString(),
+            step_size: step_size.toString()
+        };
+        
+        var ascii_out = "#" + ascii.start_frequency + "," + ascii.stop_frequency + "," + ascii.average_samples + "," + ascii.step_size + ",";
+        
+        var bufferOut = new ArrayBuffer(ascii_out.length);
+        var bufView = new Uint8Array(bufferOut);
+        
+        for (var i = 0; i < ascii_out.length; i++) {
+            bufView[i] = ascii_out.charCodeAt(i);
+        }
 
-    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
-        console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
-    });
-    */
+        // Send over the configuration
+        chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
+            console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
+        });
+    }
 }
 
 var message_buffer = new Array();
-var message_buffer_needle = 0;
-
 function onCharRead(readInfo) {
     if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
         var data = new Uint8Array(readInfo.data);
@@ -207,18 +219,18 @@ function onCharRead(readInfo) {
                 // process message and start receiving a new one
                 process_message(message_buffer);
                 
+                // empty buffer
                 message_buffer = new Array();
-                message_buffer_needle = 0;
             } else {            
-                message_buffer[message_buffer_needle++] = data[i];
+                message_buffer.push(data[i]);
             }    
         }
     }
 }
 
-var message_needle = 0;
-
 function process_message(message_buffer) {
+    var message_needle = 0;
+    
     var message = {
         frequency: 0,
         RSSI_MAX:  0,
@@ -249,26 +261,27 @@ function process_message(message_buffer) {
         }
     }
     
-    message_needle = 0;
-    
-    // Update plot
     update_plot(message);
 }
 
-var last_frequency = 0;
+var previous_frequency = 0;
 function update_plot(message) {
-    if (last_frequency > message.frequency) { // new series of data
-        plot_data[0] = new Array();
-        plot_data[1] = new Array();
-        plot_data[2] = new Array();
+    if (message.frequency < previous_frequency) { // new series of data
+        // this part is broken
+        plot_data[0] = [];
+        plot_data[1] = [];
+        plot_data[2] = [];
+        
+        // Update plot
+        plot_options.xaxis.max = stop_frequency * 100;
+        plot_options.xaxis.min = start_frequency * 100;   
     }
     
-    last_frequency = message.frequency;
+    previous_frequency = message.frequency;
     
     plot_data[0].push([message.frequency, message.RSSI_MAX]);
     plot_data[1].push([message.frequency, message.RSSI_SUM]);
     plot_data[2].push([message.frequency, message.RSSI_MIN]);
-    
     
     // redraw with latest data
     plot = Flotr.draw(element_plot, [ 
