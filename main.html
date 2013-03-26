@@ -14,13 +14,15 @@
             <div id="plot">
             </div>
             <div id="port-picker">
-                <ul>
-                    <li class="port">
+                <dl>
+                    <dt>Port:</dt>
+                    <dd class="port">
                         <select id="port">
                             <!-- port list gets generated here -->
                         </select>
-                    </li>
-                    <li>
+                    </dd>
+                    <dt>Baud:</dt>
+                    <dd>
                         <select id="baud">
                             <option value="115200" selected="selected">115200</option>
                             <option value="57600">57600</option>
@@ -34,12 +36,10 @@
                             <option value="1200">1200</option>
                             <option value="300">300</option>
                         </select>
-                    </li>
-                    <li>
-                        <a class="connect" href="#" title="">Connect</a>
-                        <a class="refresh" href="#" title="">Refresh</a>                        
-                    </li>
-                </ul>  
+                    </dd>
+                    <dt><dt><dd><a class="connect" href="#" title="">Connect</a></dd>
+                    <dt><dt><dd><a class="refresh" href="#" title="">Refresh</a>  </dd>
+                </dl>                  
             </div>
             <div id="analyzer-configuration">
                 <dl>

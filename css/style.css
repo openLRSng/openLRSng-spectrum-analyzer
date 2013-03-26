@@ -38,11 +38,78 @@ body {
 
 #port-picker {
     float: left;
+    
+    margin-left: 40px;
 }
+    #port-picker dl {
+        line-height: 25px;
+    }
+    #port-picker dt {
+        float: left;
+        width: 40px;
+    }
+    #port-picker dd {
+        margin-left: 40px;
+    }
+    #port-picker select {
+        width: 80px;
+        border: 1px solid silver;
+    }
+    #port-picker a {
+        display: block;
+        
+        width: 78px;
+        height: 18px;
+        
+        margin-bottom: 5px;
+        
+        line-height: 18px;
+        text-align: center;
+        color: white;
+        
+        text-decoration: none;
+        border: 1px solid silver;
+    }
+    #port-picker a.connect {
+        margin-top: 2px;
+        background-color: #be2222;
+    }
+    #port-picker a.connect:hover {
+        background-color: #ea3131;
+    }
+        #port-picker a.connect.active {
+            background-color: #0fab16;
+        }
+        #port-picker a.connect.active:hover {
+            background-color: #13d81d;
+        } 
+    #port-picker a.refresh {        
+        background-color: #5569d0;
+    }
+    #port-picker a.refresh:hover {
+        background-color: #424d84;
+    }        
+ 
 
 #analyzer-configuration {
     float: left;
+    
+    margin-left: 40px;
 }
+    #analyzer-configuration dl {
+        line-height: 25px;
+    }
+    #analyzer-configuration dt {
+        float: left;
+        width: 110px;
+    }
+    #analyzer-configuration dd {
+        margin-left: 110px;
+    }
+    #analyzer-configuration select {
+        width: 60px;
+        border: 1px solid silver;
+    }
 
 #plot-configuration {
     float: left;
