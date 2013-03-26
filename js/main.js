@@ -73,26 +73,28 @@ $(document).ready(function() {
         stop_frequency = parseInt($('#stop-frequency').val());
         average_samples = parseInt($('#average-samples').val());
         step_size = parseInt($('#step-size').val());
+        
+        send_current_configuration();
     });
     
     // Populate configuration selects    
     var e_start_frequency = $('#start-frequency').html('');
     for (var i = 400; i < 470; i++) {
         e_start_frequency.append($("<option/>", {
-            value: i * 10000,
+            value: i,
             text: i
         }));        
     }
-    e_start_frequency.val(415 * 10000);
+    e_start_frequency.val(415);
     
     var e_stop_frequency = $('#stop-frequency').html('');
     for (var i = 401; i < 471; i++) {
         e_stop_frequency.append($("<option/>", {
-            value: i * 10000,
+            value: i,
             text: i
         }));        
     }
-    e_stop_frequency.val(445 * 10000);
+    e_stop_frequency.val(445);
 
     var e_average_samples = $('#average-samples').html('');
     for (var i = 100; i < 1501; i += 100) {
@@ -159,6 +161,9 @@ function onOpen(openInfo) {
         // start polling
         serial_poll = setInterval(readPoll, 10);
         
+        // Send over the configuration
+        send_current_configuration();
+        
         console.log('Connection established.');
     } else {
         console.log('There was a problem while opening the connection.');
@@ -171,6 +176,23 @@ function onClosed(result) {
     } else {
         console.log('There was an error that happened during "connection-close" procedure.');
     }
+}
+
+function send_current_configuration() {
+    /* buffer ArrayBuffer size depends on the configuration length
+    // we need to send over this 4 variables (as ascii strings, with "," divider)
+    start_frequency
+    stop_frequency
+    average_samples
+    step_size
+    
+    var bufferOut = new ArrayBuffer(6);
+    var bufView = new Uint8Array(bufferOut);  
+
+    chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
+        console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
+    });
+    */
 }
 
 var message_buffer = new Array();
