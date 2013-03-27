@@ -160,6 +160,7 @@ $(document).ready(function() {
         yaxis : {
             max: 200,
             min: 0,
+            noTicks: 10,
             autoscale: true
         },
         xaxis : {
@@ -317,7 +318,7 @@ function process_message(message_buffer) {
 setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second
 function redraw_plot(message) {
     plot = Flotr.draw(element_plot, [ 
-        {data: plot_data[0], label: " MAX", lines: {fill: false}}, 
-        {data: plot_data[1], label: " AVERAGE", lines: {fill: false}}, 
-        {data: plot_data[2], label: " MIN", lines: {fill: true}} ], plot_options);       
+        {data: plot_data[0], label: "MAX", lines: {fill: false}}, 
+        {data: plot_data[1], label: "AVERAGE", lines: {fill: false}}, 
+        {data: plot_data[2], label: "MIN", lines: {fill: true}} ], plot_options);       
 }
