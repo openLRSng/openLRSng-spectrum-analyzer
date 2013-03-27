@@ -133,17 +133,18 @@ $(document).ready(function() {
     element_plot = document.getElementById("plot");
     
     plot_options = {
+        defaultType: 'lines',
         colors: ['#d60606', '#00a8f0', '#c0d800'],
         shadowSize: 0,
         yaxis : {
             min: 0,
             max: 150,
-            autoscale: true,
+            autoscale: true
         },
         xaxis : {
             noTicks : 10,
-            max : 44000,
-            min : 43000,
+            max : analyzer_config.stop_frequency * 100,
+            min : analyzer_config.start_frequency * 100,
             tickFormatter: function(x) {
                 var x = parseInt(x);
                 x /= 100;
@@ -208,10 +209,14 @@ function send_current_configuration() {
         chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
             console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
             
-            // drop current data
-            plot_data[0] = [];
-            plot_data[1] = [];
-            plot_data[2] = [];
+            // drop current data and re-populate the array
+            var array_size = ((analyzer_config.stop_frequency * 100) - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
+            
+            for (var i = 0; i < array_size; i++) {
+                plot_data[0][i] = [];
+                plot_data[1][i] = [];
+                plot_data[2][i] = [];
+            }
             
             // Update plot
             plot_options.xaxis.max = analyzer_config.stop_frequency * 100;
@@ -240,6 +245,7 @@ function onCharRead(readInfo) {
 }
 
 var previous_frequency = 0;
+var steps = 0;
 function process_message(message_buffer) {
     var message_needle = 0;
     
@@ -272,19 +278,15 @@ function process_message(message_buffer) {
             }
         }
     }
-
-    // update plot/data arrays
-    if (message.frequency < previous_frequency) { // new series of data
-        plot_data[0] = [];
-        plot_data[1] = [];
-        plot_data[2] = [];
-    }
     
-    plot_data[0].push([message.frequency, message.RSSI_MAX]);
-    plot_data[1].push([message.frequency, message.RSSI_SUM]);
-    plot_data[2].push([message.frequency, message.RSSI_MIN]);
-
-    previous_frequency = message.frequency;
+    // testing
+    var index = (message.frequency - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
+    
+    if (index <= plot_data[0].length) {
+        plot_data[0][index] = [message.frequency, message.RSSI_MAX];
+        plot_data[1][index] = [message.frequency, message.RSSI_SUM];
+        plot_data[2][index] = [message.frequency, message.RSSI_MIN];
+    }
 }
 
 setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second

@@ -19,10 +19,12 @@ body {
 }
 
 #plot {
+    position: absolute;
+
     width: 900px;
     height: 400px;
     
-    margin-left: 20px;
+    right: -20px;
     margin-bottom: 20px;
 }
 
