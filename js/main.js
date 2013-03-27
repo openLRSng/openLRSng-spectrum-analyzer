@@ -114,6 +114,7 @@ $(document).ready(function() {
     // Define some defualt values
     e_start_frequency.val(425);
     e_stop_frequency.val(435);
+    e_average_samples.val(500);
     e_step_size.val('5');
     
     // manually fire change event so variables get populated
