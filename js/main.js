@@ -10,6 +10,14 @@ plot_data[0] = new Array();
 plot_data[1] = new Array();
 plot_data[2] = new Array();
 
+// initialize analyzer config with default settings
+var analyzer_config = {
+    start_frequency: 425,
+    stop_frequency:  435,
+    average_samples: 500,
+    step_size:       5
+};
+
 $(document).ready(function() {
     port_picker = $('div#port-picker .port select');
     baud_picker = $('div#port-picker #baud');
@@ -69,10 +77,11 @@ $(document).ready(function() {
     
     // Analyzer configuration UI hooks
     $('div#analyzer-configuration select').change(function() {
-        start_frequency = parseInt($('#start-frequency').val());
-        stop_frequency = parseInt($('#stop-frequency').val());
-        average_samples = parseInt($('#average-samples').val());
-        step_size = parseInt($('#step-size').val());
+        // update analyzer config with latest settings
+        analyzer_config.start_frequency = parseInt($('#start-frequency').val());
+        analyzer_config.stop_frequency = parseInt($('#stop-frequency').val());
+        analyzer_config.average_samples = parseInt($('#average-samples').val());
+        analyzer_config.step_size = parseInt($('#step-size').val());
         
         send_current_configuration();     
     });
@@ -112,10 +121,10 @@ $(document).ready(function() {
     }
     
     // Define some defualt values
-    e_start_frequency.val(425);
-    e_stop_frequency.val(435);
-    e_average_samples.val(500);
-    e_step_size.val('5');
+    e_start_frequency.val(analyzer_config.start_frequency);
+    e_stop_frequency.val(analyzer_config.stop_frequency);
+    e_average_samples.val(analyzer_config.average_samples);
+    e_step_size.val(analyzer_config.step_size);
     
     // manually fire change event so variables get populated
     $('div#analyzer-configuration select').change(); 
@@ -148,12 +157,7 @@ $(document).ready(function() {
             position: "wn",
             backgroundOpacity: 0
         }
-    }
-
-    plot = Flotr.draw(element_plot, [ 
-        {data: plot_data[0], label: "RSSI - MAX"}, 
-        {data: plot_data[1], label: "RSSI - AVERAGE"}, 
-        {data: plot_data[2], label: "RSSI - MIN"} ], plot_options);       
+    } 
 });
 
 function readPoll() {
@@ -186,15 +190,12 @@ function onClosed(result) {
 }
 
 function send_current_configuration() {    
-    if (connectionId > 0) {    
-        var ascii = {
-            start_frequency: start_frequency.toString(),
-            stop_frequency: stop_frequency.toString(),
-            average_samples: average_samples.toString(),
-            step_size: step_size.toString()
-        };
-        
-        var ascii_out = "#" + ascii.start_frequency + "," + ascii.stop_frequency + "," + ascii.average_samples + "," + ascii.step_size + ",";
+    if (connectionId > 0) { // only send configuration over while connected
+        var ascii_out = "#" + 
+            analyzer_config.start_frequency.toString() + "," + 
+            analyzer_config.stop_frequency.toString() + "," + 
+            analyzer_config.average_samples.toString() + "," + 
+            analyzer_config.step_size.toString() + ",";
         
         var bufferOut = new ArrayBuffer(ascii_out.length);
         var bufView = new Uint8Array(bufferOut);
@@ -206,6 +207,15 @@ function send_current_configuration() {
         // Send over the configuration
         chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
             console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
+            
+            // drop current data
+            plot_data[0] = [];
+            plot_data[1] = [];
+            plot_data[2] = [];
+            
+            // Update plot
+            plot_options.xaxis.max = analyzer_config.stop_frequency * 100;
+            plot_options.xaxis.min = analyzer_config.start_frequency * 100;  
         });
     }
 }
@@ -221,7 +231,7 @@ function onCharRead(readInfo) {
                 process_message(message_buffer);
                 
                 // empty buffer
-                message_buffer = new Array();
+                message_buffer = Array();
             } else {            
                 message_buffer.push(data[i]);
             }    
@@ -229,6 +239,7 @@ function onCharRead(readInfo) {
     }
 }
 
+var previous_frequency = 0;
 function process_message(message_buffer) {
     var message_needle = 0;
     
@@ -261,30 +272,23 @@ function process_message(message_buffer) {
             }
         }
     }
-    
-    update_plot(message);
-}
 
-var previous_frequency = 0;
-function update_plot(message) {
+    // update plot/data arrays
     if (message.frequency < previous_frequency) { // new series of data
-        // this part is broken
         plot_data[0] = [];
         plot_data[1] = [];
         plot_data[2] = [];
-        
-        // Update plot
-        plot_options.xaxis.max = stop_frequency * 100;
-        plot_options.xaxis.min = start_frequency * 100;   
     }
-    
-    previous_frequency = message.frequency;
     
     plot_data[0].push([message.frequency, message.RSSI_MAX]);
     plot_data[1].push([message.frequency, message.RSSI_SUM]);
     plot_data[2].push([message.frequency, message.RSSI_MIN]);
-    
-    // redraw with latest data
+
+    previous_frequency = message.frequency;
+}
+
+setInterval(redraw_plot, 50);
+function redraw_plot(message) {
     plot = Flotr.draw(element_plot, [ 
         {data: plot_data[0], label: "RSSI - MAX", lines: {fill: false}}, 
         {data: plot_data[1], label: "RSSI - AVERAGE", lines: {fill: false}}, 
