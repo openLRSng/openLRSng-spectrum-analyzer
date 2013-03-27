@@ -287,7 +287,7 @@ function process_message(message_buffer) {
     previous_frequency = message.frequency;
 }
 
-setInterval(redraw_plot, 50);
+setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second
 function redraw_plot(message) {
     plot = Flotr.draw(element_plot, [ 
         {data: plot_data[0], label: "RSSI - MAX", lines: {fill: false}}, 
