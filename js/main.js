@@ -212,6 +212,10 @@ function send_current_configuration() {
             // drop current data and re-populate the array
             var array_size = ((analyzer_config.stop_frequency * 100) - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
             
+            plot_data[0] = [];
+            plot_data[1] = [];
+            plot_data[2] = [];            
+            
             for (var i = 0; i < array_size; i++) {
                 plot_data[0][i] = [];
                 plot_data[1][i] = [];
