@@ -4,7 +4,7 @@ var serial_poll = 0; // iterval timer refference
 
 var element_plot;
 var plot;
-var plot_type = 'lines';
+var plot_units = 1;
 
 var plot_data = new Array(3);
 
@@ -14,6 +14,11 @@ var analyzer_config = {
     stop_frequency:  435,
     average_samples: 500,
     step_size:       5
+};
+
+var plot_config = {
+    type: 'lines',
+    units: 1,
 };
 
 $(document).ready(function() {
@@ -85,8 +90,21 @@ $(document).ready(function() {
     });
     
     $('div#plot-configuration select').change(function() {
-        plot_type = String($('#plot-type').val());
-        plot_options.defaultType = plot_type;
+        plot_config.type = String($('#plot-type').val());
+        plot_config.units = parseFloat($('#plot-units').val());
+        
+        plot_options.defaultType = plot_config.type;
+        
+        if (plot_config.units == 1.00) {
+            plot_options.yaxis.max = 200;
+            plot_options.yaxis.min = 0;
+        } else if (plot_config.units == 0.5) {
+            plot_options.yaxis.max = 100;
+            plot_options.yaxis.min = 0;
+        }
+        
+        // sending configuration in this case is meant only to re-initialize arrays due to unit change
+        send_current_configuration(); 
     });
     
     // Populate configuration selects    
@@ -136,12 +154,12 @@ $(document).ready(function() {
     element_plot = document.getElementById("plot");
     
     plot_options = {
-        defaultType: plot_type,
+        defaultType: plot_config.type,
         colors: ['#d60606', '#00a8f0', '#c0d800'],
         shadowSize: 0,
         yaxis : {
+            max: 200,
             min: 0,
-            max: 150,
             autoscale: true
         },
         xaxis : {
@@ -290,16 +308,16 @@ function process_message(message_buffer) {
     var index = (message.frequency - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
     
     if (index <= plot_data[0].length) {
-        plot_data[0][index] = [message.frequency, message.RSSI_MAX];
-        plot_data[1][index] = [message.frequency, message.RSSI_SUM];
-        plot_data[2][index] = [message.frequency, message.RSSI_MIN];
+        plot_data[0][index] = [message.frequency, message.RSSI_MAX * plot_config.units];
+        plot_data[1][index] = [message.frequency, message.RSSI_SUM * plot_config.units];
+        plot_data[2][index] = [message.frequency, message.RSSI_MIN * plot_config.units];
     }
 }
 
 setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second
 function redraw_plot(message) {
     plot = Flotr.draw(element_plot, [ 
-        {data: plot_data[0], label: "RSSI - MAX", lines: {fill: false}}, 
-        {data: plot_data[1], label: "RSSI - AVERAGE", lines: {fill: false}}, 
-        {data: plot_data[2], label: "RSSI - MIN", lines: {fill: true}} ], plot_options);       
+        {data: plot_data[0], label: " MAX", lines: {fill: false}}, 
+        {data: plot_data[1], label: " AVERAGE", lines: {fill: false}}, 
+        {data: plot_data[2], label: " MIN", lines: {fill: true}} ], plot_options);       
 }
