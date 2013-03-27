@@ -4,11 +4,9 @@ var serial_poll = 0; // iterval timer refference
 
 var element_plot;
 var plot;
+var plot_type = 'lines';
 
 var plot_data = new Array(3);
-plot_data[0] = new Array();
-plot_data[1] = new Array();
-plot_data[2] = new Array();
 
 // initialize analyzer config with default settings
 var analyzer_config = {
@@ -86,6 +84,11 @@ $(document).ready(function() {
         send_current_configuration();     
     });
     
+    $('div#plot-configuration select').change(function() {
+        plot_type = String($('#plot-type').val());
+        plot_options.defaultType = plot_type;
+    });
+    
     // Populate configuration selects    
     var e_start_frequency = $('#start-frequency').html('');
     for (var i = 400; i < 470; i++) {
@@ -133,7 +136,7 @@ $(document).ready(function() {
     element_plot = document.getElementById("plot");
     
     plot_options = {
-        defaultType: 'lines',
+        defaultType: plot_type,
         colors: ['#d60606', '#00a8f0', '#c0d800'],
         shadowSize: 0,
         yaxis : {

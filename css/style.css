@@ -31,8 +31,8 @@ body {
 /* Flotr related styles */
 .flotr-legend {
     padding: 2px;
-    left: 775px;
-    top: 10px;
+    left: 774px;
+    top: 11px;
     border: 0;
     
     background-color: white;
@@ -115,4 +115,20 @@ body {
 
 #plot-configuration {
     float: left;
+    
+    margin-left: 40px;
 }
+    #plot-configuration dl {
+        line-height: 25px;
+    }
+    #plot-configuration dt {
+        float: left;
+        width: 80px;
+    }
+    #plot-configuration dd {
+        margin-left: 80px;
+    }
+    #plot-configuration select {
+        width: 60px;
+        border: 1px solid silver;
+    }
