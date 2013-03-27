@@ -96,11 +96,13 @@ $(document).ready(function() {
         plot_options.defaultType = plot_config.type;
         
         if (plot_config.units == 1.00) {
-            plot_options.yaxis.max = 200;
+            plot_options.yaxis.max = 240;
             plot_options.yaxis.min = 0;
+            plot_options.yaxis.noTicks = 12;
         } else if (plot_config.units == 0.5) {
-            plot_options.yaxis.max = 100;
+            plot_options.yaxis.max = 120;
             plot_options.yaxis.min = 0;
+            plot_options.yaxis.noTicks = 10;
         }
         
         // sending configuration in this case is meant only to re-initialize arrays due to unit change
@@ -158,9 +160,9 @@ $(document).ready(function() {
         colors: ['#d60606', '#00a8f0', '#c0d800'],
         shadowSize: 0,
         yaxis : {
-            max: 200,
+            max: 240,
             min: 0,
-            noTicks: 10,
+            noTicks: 12,
             autoscale: true
         },
         xaxis : {
