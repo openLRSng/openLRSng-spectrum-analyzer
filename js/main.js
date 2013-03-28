@@ -115,6 +115,9 @@ $(document).ready(function() {
         } else {
             plot_config.overtime_averaging = 0;
         }
+        
+        // sending configuration in this case is meant only to re-initialize arrays due to unit change
+        send_current_configuration(); 
     });
     
     // Populate configuration selects    
@@ -251,10 +254,10 @@ function send_current_configuration() {
             plot_data_avr_sum = [];
             
             for (var i = 0; i <= array_size; i++) {
-                plot_data[0][i] = [];
-                plot_data[1][i] = [];
-                plot_data[2][i] = [];
-                plot_data[3][i] = [];
+                plot_data[0][i] = [100000, 0];
+                plot_data[1][i] = [100000, 0];
+                plot_data[2][i] = [100000, 0];
+                plot_data[3][i] = [100000, 0];
                 plot_data_avr_sum[i] = [0, 0]; // sum, samples_n
             }
             
@@ -331,7 +334,7 @@ function process_message(message_buffer) {
         if (plot_config.overtime_averaging == 1) {            
             if (c_RSSI_MAX > plot_data[0][index][1]) plot_data[0][index] = [message.frequency, c_RSSI_MAX];
             if (c_RSSI_SUM > plot_data[1][index][1]) plot_data[1][index] = [message.frequency, c_RSSI_SUM];
-            if (c_RSSI_MIN > plot_data[2][index][1]) plot_data[2][index] = [message.frequency, c_RSSI_MIN];
+            if (c_RSSI_MIN < plot_data[2][index][1] || plot_data[2][index][1] == 0) plot_data[2][index] = [message.frequency, c_RSSI_MIN];
             
             plot_data_avr_sum[index][1] += 1;
             plot_data_avr_sum[index] = [plot_data_avr_sum[index][0] + c_RSSI_SUM, plot_data_avr_sum[index][1]];
