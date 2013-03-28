@@ -322,17 +322,24 @@ function process_message(message_buffer) {
     // testing
     var index = (message.frequency - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
     
-    if (index <= plot_data[0].length) {
-        plot_data[0][index] = [message.frequency, message.RSSI_MAX * plot_config.units];
-        plot_data[1][index] = [message.frequency, message.RSSI_SUM * plot_config.units];
-        plot_data[2][index] = [message.frequency, message.RSSI_MIN * plot_config.units];
+    if (index <= plot_data[0].length) {     
+        // doing pre-comupation to save (optimize) cycles
+        var c_RSSI_MAX = message.RSSI_MAX * plot_config.units;
+        var c_RSSI_SUM = message.RSSI_SUM * plot_config.units;
+        var c_RSSI_MIN = message.RSSI_MIN * plot_config.units;
         
-        // Handle overtime averaging
-        if (plot_config.overtime_averaging == 1) { 
-            plot_data_avr_sum[index][1] += 1;
-            plot_data_avr_sum[index] = [plot_data_avr_sum[index][0] + (message.RSSI_SUM * plot_config.units), plot_data_avr_sum[index][1]];
+        if (plot_config.overtime_averaging == 1) {            
+            if (c_RSSI_MAX > plot_data[0][index][1]) plot_data[0][index] = [message.frequency, c_RSSI_MAX];
+            if (c_RSSI_SUM > plot_data[1][index][1]) plot_data[1][index] = [message.frequency, c_RSSI_SUM];
+            if (c_RSSI_MIN > plot_data[2][index][1]) plot_data[2][index] = [message.frequency, c_RSSI_MIN];
             
+            plot_data_avr_sum[index][1] += 1;
+            plot_data_avr_sum[index] = [plot_data_avr_sum[index][0] + c_RSSI_SUM, plot_data_avr_sum[index][1]];
             plot_data[3][index] = [message.frequency, plot_data_avr_sum[index][0] / plot_data_avr_sum[index][1]];
+        } else {
+            plot_data[0][index] = [message.frequency, c_RSSI_MAX];
+            plot_data[1][index] = [message.frequency, c_RSSI_SUM];
+            plot_data[2][index] = [message.frequency, c_RSSI_MIN];
         }
     }
 }
