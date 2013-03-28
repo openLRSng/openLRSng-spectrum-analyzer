@@ -128,6 +128,9 @@ body {
     #plot-configuration dd {
         margin-left: 80px;
     }
+        #plot-configuration dd.t-right {
+            text-align: right;
+        }
     #plot-configuration select {
         width: 60px;
         border: 1px solid silver;

@@ -4,11 +4,10 @@ var serial_poll = 0; // iterval timer refference
 
 var element_plot;
 var plot;
-var plot_units = 1;
 
-var plot_data = new Array(3);
+var plot_data = new Array(4);
+var plot_data_avr_sum = new Array();
 
-// initialize analyzer config with default settings
 var analyzer_config = {
     start_frequency: 425,
     stop_frequency:  435,
@@ -19,6 +18,7 @@ var analyzer_config = {
 var plot_config = {
     type: 'lines',
     units: 1,
+    overtime_averaging: 0
 };
 
 $(document).ready(function() {
@@ -107,6 +107,14 @@ $(document).ready(function() {
         
         // sending configuration in this case is meant only to re-initialize arrays due to unit change
         send_current_configuration(); 
+    });
+    
+    $('div#plot-configuration input').change(function() {
+        if ($(this).is(':checked')) {
+            plot_config.overtime_averaging = 1;
+        } else {
+            plot_config.overtime_averaging = 0;
+        }
     });
     
     // Populate configuration selects    
@@ -238,12 +246,16 @@ function send_current_configuration() {
             
             plot_data[0] = [];
             plot_data[1] = [];
-            plot_data[2] = [];            
+            plot_data[2] = [];
+            plot_data[3] = [];
+            plot_data_avr_sum = [];
             
-            for (var i = 0; i < array_size; i++) {
+            for (var i = 0; i <= array_size; i++) {
                 plot_data[0][i] = [];
                 plot_data[1][i] = [];
                 plot_data[2][i] = [];
+                plot_data[3][i] = [];
+                plot_data_avr_sum[i] = [0, 0]; // sum, samples_n
             }
             
             // Update plot
@@ -314,6 +326,14 @@ function process_message(message_buffer) {
         plot_data[0][index] = [message.frequency, message.RSSI_MAX * plot_config.units];
         plot_data[1][index] = [message.frequency, message.RSSI_SUM * plot_config.units];
         plot_data[2][index] = [message.frequency, message.RSSI_MIN * plot_config.units];
+        
+        // Handle overtime averaging
+        if (plot_config.overtime_averaging == 1) { 
+            plot_data_avr_sum[index][1] += 1;
+            plot_data_avr_sum[index] = [plot_data_avr_sum[index][0] + (message.RSSI_SUM * plot_config.units), plot_data_avr_sum[index][1]];
+            
+            plot_data[3][index] = [message.frequency, plot_data_avr_sum[index][0] / plot_data_avr_sum[index][1]];
+        }
     }
 }
 
@@ -321,6 +341,6 @@ setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second
 function redraw_plot(message) {
     plot = Flotr.draw(element_plot, [ 
         {data: plot_data[0], label: "MAX", lines: {fill: false}}, 
-        {data: plot_data[1], label: "AVERAGE", lines: {fill: false}}, 
+        {data: plot_config.overtime_averaging ? plot_data[3] : plot_data[1], label: "AVERAGE", lines: {fill: false}}, 
         {data: plot_data[2], label: "MIN", lines: {fill: true}} ], plot_options);       
 }
