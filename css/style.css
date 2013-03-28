@@ -128,10 +128,18 @@ body {
     #plot-configuration dd {
         margin-left: 80px;
     }
+        #plot-configuration .overtime-averaging-counter {
+            margin-right: 10px;
+        }
         #plot-configuration dd.t-right {
             text-align: right;
         }
     #plot-configuration select {
         width: 60px;
         border: 1px solid silver;
+    }
+    #plot-configuration input {
+        float: right;
+        display: block;
+        margin-top: 6px;
     }

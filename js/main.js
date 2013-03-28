@@ -163,6 +163,8 @@ $(document).ready(function() {
     // manually fire change event so variables get populated
     $('div#analyzer-configuration select').change(); 
     
+    e_averaging_counter = $('span.overtime-averaging-counter');
+    
     // Plot
     element_plot = document.getElementById("plot");
     
@@ -352,5 +354,12 @@ function redraw_plot(message) {
     plot = Flotr.draw(element_plot, [ 
         {data: plot_data[0], label: "MAX", lines: {fill: false}}, 
         {data: plot_config.overtime_averaging ? plot_data[3] : plot_data[1], label: "AVERAGE", lines: {fill: false}}, 
-        {data: plot_data[2], label: "MIN", lines: {fill: true}} ], plot_options);       
+        {data: plot_data[2], label: "MIN", lines: {fill: true}} ], plot_options);  
+
+    // Update averaging counter
+    if (plot_config.overtime_averaging) {
+        e_averaging_counter.html(plot_data_avr_sum[0][1]);
+    } else {
+        e_averaging_counter.html(0);
+    }
 }
