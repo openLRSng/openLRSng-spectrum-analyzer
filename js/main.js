@@ -289,8 +289,7 @@ function onCharRead(readInfo) {
     }
 }
 
-var previous_frequency = 0;
-var steps = 0;
+var last_index = 0;
 function process_message(message_buffer) {
     var message_needle = 0;
     
@@ -324,7 +323,6 @@ function process_message(message_buffer) {
         }
     }
     
-    // testing
     var index = (message.frequency - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
     
     if (index <= plot_data[0].length) {     
@@ -347,6 +345,19 @@ function process_message(message_buffer) {
             plot_data[2][index] = [message.frequency, c_RSSI_MIN];
         }
     }
+    
+    if (last_index > index) { // new sample detection
+        var peak = [0, 0];
+        for (var i = 0; i < plot_data[0].length; i++) {
+            if (plot_data[0][i][1] > peak[1]) {
+                peak = [plot_data[0][i][0], plot_data[0][i][1]];
+            }
+        }
+        
+        $('div#peak-detection').html('Peak: ' + parseFloat(peak[0] / 100) + ' MHz @ ' + peak[1]);
+    }
+    
+    last_index = index;
 }
 
 setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second

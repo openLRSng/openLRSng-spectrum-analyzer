@@ -143,3 +143,8 @@ body {
         display: block;
         margin-top: 6px;
     }
+#peak-detection {
+    float: left;
+    
+    margin-left: 40px;
+}    
