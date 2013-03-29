@@ -1,6 +1,6 @@
 var connectionId = -1;
 var port_list;
-var serial_poll = 0; // iterval timer refference
+var serial_poll;
 
 var element_plot;
 var plot;
@@ -56,9 +56,6 @@ $(document).ready(function() {
         
         if (clicks) { // odd number of clicks
             chrome.serial.close(connectionId, onClosed);
-            
-            clearInterval(serial_poll);
-            serial_poll = 0; // this also indicates that we are not reading anything
             
             $(this).text('Connect');
             $(this).removeClass('active');            
@@ -183,7 +180,6 @@ $(document).ready(function() {
             $(this).removeClass('resume');            
         } else { // even number of clicks
             clearInterval(serial_poll);
-            serial_poll = 0;
             
             clearInterval(plot_poll);
             
@@ -263,6 +259,8 @@ function onOpen(openInfo) {
 }
 
 function onClosed(result) {
+    clearInterval(serial_poll);
+    
     if (result == 1) {
         connectionId = -1; // reset connection id
         console.log('Connection closed successfully.');
