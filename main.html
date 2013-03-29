@@ -13,86 +13,89 @@
         <div id="main-wrapper">
             <div id="plot">
             </div>
-            <div id="port-picker">
-                <dl>
-                    <dt>Port:</dt>
-                    <dd class="port">
-                        <select id="port">
-                            <!-- port list gets generated here -->
-                        </select>
-                    </dd>
-                    <dt>Baud:</dt>
-                    <dd>
-                        <select id="baud">
-                            <option value="115200" selected="selected">115200</option>
-                            <option value="57600">57600</option>
-                            <option value="38400">38400</option>
-                            <option value="28800">28800</option>
-                            <option value="19200">19200</option>
-                            <option value="14400">14400</option>
-                            <option value="9600">9600</option>
-                            <option value="4800">4800</option>
-                            <option value="2400">2400</option>
-                            <option value="1200">1200</option>
-                            <option value="300">300</option>
-                        </select>
-                    </dd>
-                    <dt><dt><dd><a class="connect" href="#" title="">Connect</a></dd>
-                    <dt><dt><dd><a class="refresh" href="#" title="">Refresh</a>  </dd>
-                </dl>                  
+            <div class="controls">
+                <div id="port-picker">
+                    <dl>
+                        <dt>Port:</dt>
+                        <dd class="port">
+                            <select id="port">
+                                <!-- port list gets generated here -->
+                            </select>
+                        </dd>
+                        <dt>Baud:</dt>
+                        <dd>
+                            <select id="baud">
+                                <option value="115200" selected="selected">115200</option>
+                                <option value="57600">57600</option>
+                                <option value="38400">38400</option>
+                                <option value="28800">28800</option>
+                                <option value="19200">19200</option>
+                                <option value="14400">14400</option>
+                                <option value="9600">9600</option>
+                                <option value="4800">4800</option>
+                                <option value="2400">2400</option>
+                                <option value="1200">1200</option>
+                                <option value="300">300</option>
+                            </select>
+                        </dd>
+                        <dt><dt><dd><a class="connect" href="#" title="">Connect</a></dd>
+                        <dt><dt><dd><a class="refresh" href="#" title="">Refresh</a>  </dd>
+                    </dl>                  
+                </div>
+                <div id="analyzer-configuration">
+                    <dl>
+                        <dt>Start Frequency (MHz):</dt>
+                        <dd>
+                            <select id="start-frequency">
+                            </select>
+                        </dd>
+                        <dt>Stop Frequency (MHz):</dt>
+                        <dd>
+                            <select id="stop-frequency">
+                            </select>
+                        </dd>
+                        <dt>Average samples:</dt>
+                        <dd>
+                            <select id="average-samples">
+                            </select>
+                        </dd>
+                        <dt>Step size:</dt>
+                        <dd>
+                            <select id="step-size">
+                            </select>
+                        </dd>
+                    </dl>
+                </div>
+                <div id="plot-configuration">
+                    <dl>
+                        <dt>Graph type:</dt>
+                        <dd>
+                            <select id="plot-type">
+                                <option value="lines">lines</option>
+                                <option value="bars">bars</option>
+                            </select>
+                        </dd>
+                        <dt>Graph units:</dt>
+                        <dd>
+                            <select id="plot-units">
+                                <option value="1">RSSI</option>
+                                <option value="0.5">dBm</option>
+                            </select>
+                        </dd>
+                        <dt>Overtime Avr.:</dt>
+                        <dd class="t-right">
+                            <span class="overtime-averaging-counter">0</span>
+                            <input type="checkbox" name="overtime-averaging" value="1">
+                        </dd>
+                    </dl>
+                    <a class="pause-resume pause" href="#" title="">Pause</a>
+                </div>
+                <div id="peak-detection">
+                    <ul>
+                    </ul>
+                </div>
+                <div class="clear-both"></div>
             </div>
-            <div id="analyzer-configuration">
-                <dl>
-                    <dt>Start Frequency (MHz):</dt>
-                    <dd>
-                        <select id="start-frequency">
-                        </select>
-                    </dd>
-                    <dt>Stop Frequency (MHz):</dt>
-                    <dd>
-                        <select id="stop-frequency">
-                        </select>
-                    </dd>
-                    <dt>Average samples:</dt>
-                    <dd>
-                        <select id="average-samples">
-                        </select>
-                    </dd>
-                    <dt>Step size:</dt>
-                    <dd>
-                        <select id="step-size">
-                        </select>
-                    </dd>
-                </dl>
-            </div>
-            <div id="plot-configuration">
-                <dl>
-                    <dt>Graph type:</dt>
-                    <dd>
-                        <select id="plot-type">
-                            <option value="lines">lines</option>
-                            <option value="bars">bars</option>
-                        </select>
-                    </dd>
-                    <dt>Graph units:</dt>
-                    <dd>
-                        <select id="plot-units">
-                            <option value="1">RSSI</option>
-                            <option value="0.5">dBm</option>
-                        </select>
-                    </dd>
-                    <dt>Overtime Avr.:</dt>
-                    <dd class="t-right">
-                        <span class="overtime-averaging-counter">0</span>
-                        <input type="checkbox" name="overtime-averaging" value="1">
-                    </dd>
-                </dl>
-            </div>
-            <div id="peak-detection">
-                <ul>
-                </ul>
-            </div>
-            <a class="pause-resume pause" href="#" title="">Pause</a>
         </div>
     </body>
 </html>             

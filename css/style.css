@@ -11,6 +11,9 @@ body {
     -webkit-text-size-adjust: 100%;
     background-color: #dfddd0;
 }
+.clear-both {
+    clear: both;
+}
 
 #main-wrapper {
     width: 960px;
@@ -25,7 +28,7 @@ body {
     height: 400px;
     
     right: -20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 /* Flotr related styles */
@@ -38,6 +41,12 @@ body {
     background-color: white;
 }
 
+.controls {
+    height: 200px;
+    padding-top: 10px;
+    border-top: 1px solid #575652;
+    background-color: #cccac0;
+}
 #port-picker {
     float: left;
     
@@ -164,14 +173,11 @@ body {
         border-bottom: 1px solid silver;
     }
 .pause-resume {
-    float: left;
-
-    margin-top: 2px;
-    margin-left: 40px;
+    float: right;
     
     display: block;
     
-    width: 100px;
+    width: 60px;
     height: 18px;
     line-height: 18px;
     

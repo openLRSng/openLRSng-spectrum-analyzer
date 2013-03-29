@@ -171,7 +171,7 @@ $(document).ready(function() {
         var clicks = $(this).data('clicks');
         
         if (clicks) { // odd number of clicks
-            // empty buffer manually
+            // empty buffer manually (.flush doesn't seem to work here for some reason)
             chrome.serial.read(connectionId, 1048575, function() {});
             
             serial_poll = setInterval(readPoll, 10);
@@ -234,7 +234,7 @@ $(document).ready(function() {
                 var frequency = x.x / 100;
                 var val = x.y;
                 
-                return frequency + ' Mhz @ ' + val;
+                return frequency + ' MHz @ ' + val;
             }
         }
     } 
