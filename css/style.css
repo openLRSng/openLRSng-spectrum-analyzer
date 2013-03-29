@@ -146,5 +146,50 @@ body {
 #peak-detection {
     float: left;
     
+    margin-top: 2px;
     margin-left: 40px;
-}    
+    
+    width: 140px;
+    height: 85px;
+    padding: 5px 10px 0 10px;
+    
+    border: 1px solid silver;
+    background-color: white;
+}
+    #peak-detection ul {
+        line-height: 25px;
+    }
+    #peak-detection li {
+        padding-bottom: 2px;
+        border-bottom: 1px solid silver;
+    }
+.pause-resume {
+    float: left;
+
+    margin-top: 2px;
+    margin-left: 40px;
+    
+    display: block;
+    
+    width: 100px;
+    height: 18px;
+    line-height: 18px;
+    
+    text-align: center;
+    color: white;
+    
+    text-decoration: none;
+    border: 1px solid silver;
+}
+    .pause-resume.pause {
+        background-color: #be2222;
+    }
+    .pause-resume.pause:hover {
+        background-color: #ea3131;
+    }
+    .pause-resume.resume {
+        background-color: #0fab16;
+    }
+    .pause-resume.resume:hover {
+        background-color: #13d81d;
+    }

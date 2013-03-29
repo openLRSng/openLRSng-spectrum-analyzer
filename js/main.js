@@ -4,6 +4,7 @@ var serial_poll = 0; // iterval timer refference
 
 var element_plot;
 var plot;
+var plot_poll = 0;
 
 var plot_data = new Array(4);
 var plot_data_avr_sum = new Array();
@@ -165,6 +166,35 @@ $(document).ready(function() {
     
     e_averaging_counter = $('span.overtime-averaging-counter');
     
+    // Pause Resume handler
+    $('.pause-resume').click(function() {
+        var clicks = $(this).data('clicks');
+        
+        if (clicks) { // odd number of clicks
+            // empty buffer manually
+            chrome.serial.read(connectionId, 1048575, function() {});
+            
+            serial_poll = setInterval(readPoll, 10);
+            plot_poll = setInterval(redraw_plot, 40);
+            
+            plot_options.mouse.track = false;
+            
+            $(this).text('Pause');
+            $(this).removeClass('resume');            
+        } else { // even number of clicks
+            clearInterval(serial_poll);
+            clearInterval(plot_poll);
+            
+            plot_options.mouse.track = true;
+            redraw_plot();
+            
+            $(this).text('Resume');  
+            $(this).addClass('resume');
+        }
+        
+        $(this).data("clicks", !clicks);        
+    });
+    
     // Plot
     element_plot = document.getElementById("plot");
     
@@ -172,28 +202,40 @@ $(document).ready(function() {
         defaultType: plot_config.type,
         colors: ['#d60606', '#00a8f0', '#c0d800'],
         shadowSize: 0,
-        yaxis : {
+        yaxis: {
             max: 240,
             min: 0,
             noTicks: 12,
             autoscale: true
         },
-        xaxis : {
-            noTicks : 10,
-            max : analyzer_config.stop_frequency * 100,
-            min : analyzer_config.start_frequency * 100,
+        xaxis: {
+            noTicks: 10,
+            max: analyzer_config.stop_frequency * 100,
+            min: analyzer_config.start_frequency * 100,
             tickFormatter: function(x) {
                 var x = parseInt(x);
                 x /= 100;
                 return x + ' MHz';
             }
         },
-        grid : {
+        grid: {
             backgroundColor: "#FFFFFF"
         },
-        legend : {
+        legend: {
             position: "wn",
             backgroundOpacity: 0
+        },
+        mouse: {
+            track: false,
+            relative: true,
+            margin: 10,
+            fillOpacity: 1,
+            trackFormatter: function(x) {
+                var frequency = x.x / 100;
+                var val = x.y;
+                
+                return frequency + ' Mhz @ ' + val;
+            }
         }
     } 
 });
@@ -354,14 +396,14 @@ function process_message(message_buffer) {
             }
         }
         
-        $('div#peak-detection').html('Peak: ' + parseFloat(peak[0] / 100) + ' MHz @ ' + peak[1]);
+        $('div#peak-detection').html('<li>Peak: ' + parseFloat(peak[0] / 100) + ' MHz @ ' + peak[1] + '</li>');
     }
     
     last_index = index;
 }
 
-setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second
-function redraw_plot(message) {
+plot_poll = setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second
+function redraw_plot() {
     plot = Flotr.draw(element_plot, [ 
         {data: plot_data[0], label: "MAX", lines: {fill: false}}, 
         {data: plot_config.overtime_averaging ? plot_data[3] : plot_data[1], label: "AVERAGE", lines: {fill: false}}, 
