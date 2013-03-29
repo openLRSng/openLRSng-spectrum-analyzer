@@ -183,6 +183,8 @@ $(document).ready(function() {
             $(this).removeClass('resume');            
         } else { // even number of clicks
             clearInterval(serial_poll);
+            serial_poll = 0;
+            
             clearInterval(plot_poll);
             
             plot_options.mouse.track = true;
