@@ -1,10 +1,10 @@
 var connectionId = -1;
 var port_list;
-var serial_poll;
+var serial_poll; // interval refference
 
 var element_plot;
 var plot;
-var plot_poll = 0;
+var plot_poll; // interval refference
 
 var plot_data = new Array(4);
 var plot_data_avr_sum = new Array();
@@ -236,6 +236,8 @@ $(document).ready(function() {
             }
         }
     } 
+    
+    redraw_plot();
 });
 
 function readPoll() {
@@ -248,6 +250,7 @@ function onOpen(openInfo) {
     if (connectionId != -1) {
         // start polling
         serial_poll = setInterval(readPoll, 10);
+        plot_poll = setInterval(redraw_plot, 40);
         
         // Send over the configuration
         send_current_configuration();
@@ -402,7 +405,6 @@ function process_message(message_buffer) {
     last_index = index;
 }
 
-plot_poll = setInterval(redraw_plot, 40); // 1s = 1000ms, 1000/40 = 25 frames per second
 function redraw_plot() {
     plot = Flotr.draw(element_plot, [ 
         {data: plot_data[0], label: "MAX", lines: {fill: false}}, 
