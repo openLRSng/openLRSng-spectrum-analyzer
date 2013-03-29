@@ -383,14 +383,16 @@ function process_message(message_buffer) {
         var c_RSSI_SUM = message.RSSI_SUM * plot_config.units;
         var c_RSSI_MIN = message.RSSI_MIN * plot_config.units;
         
-        if (plot_config.overtime_averaging == 1) {            
-            if (c_RSSI_MAX > plot_data[0][index][1]) plot_data[0][index] = [message.frequency, c_RSSI_MAX];
-            if (c_RSSI_SUM > plot_data[1][index][1]) plot_data[1][index] = [message.frequency, c_RSSI_SUM];
-            if (c_RSSI_MIN < plot_data[2][index][1] || plot_data[2][index][1] == 0) plot_data[2][index] = [message.frequency, c_RSSI_MIN];
-            
-            plot_data_avr_sum[index][1] += 1;
-            plot_data_avr_sum[index] = [plot_data_avr_sum[index][0] + c_RSSI_SUM, plot_data_avr_sum[index][1]];
-            plot_data[3][index] = [message.frequency, plot_data_avr_sum[index][0] / plot_data_avr_sum[index][1]];
+        if (plot_config.overtime_averaging == 1) {
+            if (plot_data_avr_sum[index] != undefined) {
+                if (c_RSSI_MAX > plot_data[0][index][1]) plot_data[0][index] = [message.frequency, c_RSSI_MAX];
+                if (c_RSSI_SUM > plot_data[1][index][1]) plot_data[1][index] = [message.frequency, c_RSSI_SUM];
+                if (c_RSSI_MIN < plot_data[2][index][1] || plot_data[2][index][1] == 0) plot_data[2][index] = [message.frequency, c_RSSI_MIN];
+                
+                plot_data_avr_sum[index][1] += 1;
+                plot_data_avr_sum[index] = [plot_data_avr_sum[index][0] + c_RSSI_SUM, plot_data_avr_sum[index][1]];
+                plot_data[3][index] = [message.frequency, plot_data_avr_sum[index][0] / plot_data_avr_sum[index][1]];
+            }
         } else {
             plot_data[0][index] = [message.frequency, c_RSSI_MAX];
             plot_data[1][index] = [message.frequency, c_RSSI_SUM];
