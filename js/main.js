@@ -65,6 +65,11 @@ $(document).ready(function() {
             
             console.log('Connecting to: ' + selected_port);
             
+            // Reset pause button if necessary
+            if ($('.pause-resume').data('clicks') == true) {
+                $('.pause-resume').click();
+            }
+            
             chrome.serial.open(selected_port, {
                 bitrate: selected_baud
             }, onOpen);
@@ -168,13 +173,15 @@ $(document).ready(function() {
         var clicks = $(this).data('clicks');
         
         if (clicks) { // odd number of clicks
-            // empty buffer manually (.flush doesn't seem to work here for some reason)
-            chrome.serial.read(connectionId, 1048575, function() {});
-            
-            serial_poll = setInterval(readPoll, 10);
-            plot_poll = setInterval(redraw_plot, 40);
-            
-            plot_options.mouse.track = false;
+            if (connectionId != -1) {
+                // empty buffer manually (.flush doesn't seem to work here for some reason)
+                chrome.serial.read(connectionId, 1048575, function() {});
+                
+                serial_poll = setInterval(readPoll, 10);
+                plot_poll = setInterval(redraw_plot, 40);
+                
+                plot_options.mouse.track = false;
+            }
             
             $(this).text('Pause');
             $(this).removeClass('resume');            
