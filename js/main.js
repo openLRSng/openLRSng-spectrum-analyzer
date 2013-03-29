@@ -22,6 +22,8 @@ var plot_config = {
     overtime_averaging: 0
 };
 
+var port_usage; // interval refference
+
 $(document).ready(function() {
     port_picker = $('div#port-picker .port select');
     baud_picker = $('div#port-picker #baud');
@@ -124,7 +126,7 @@ $(document).ready(function() {
     });
     
     // Populate configuration selects    
-    var e_start_frequency = $('#start-frequency').html('');
+    var e_start_frequency = $('#start-frequency');
     for (var i = 400; i < 470; i++) {
         e_start_frequency.append($("<option/>", {
             value: i,
@@ -132,7 +134,7 @@ $(document).ready(function() {
         }));        
     }
     
-    var e_stop_frequency = $('#stop-frequency').html('');
+    var e_stop_frequency = $('#stop-frequency');
     for (var i = 401; i < 471; i++) {
         e_stop_frequency.append($("<option/>", {
             value: i,
@@ -140,7 +142,7 @@ $(document).ready(function() {
         }));        
     }
 
-    var e_average_samples = $('#average-samples').html('');
+    var e_average_samples = $('#average-samples');
     for (var i = 100; i < 1501; i += 100) {
         
         e_average_samples.append($("<option/>", {
@@ -149,7 +151,7 @@ $(document).ready(function() {
         }));        
     }
     
-    var e_step_size = $('#step-size').html('');
+    var e_step_size = $('#step-size');
     for (var i = 1; i < 100; i += 1) {
         e_step_size.append($("<option/>", {
             value: i,
@@ -258,6 +260,7 @@ function onOpen(openInfo) {
         // start polling
         serial_poll = setInterval(readPoll, 10);
         plot_poll = setInterval(redraw_plot, 40);
+        port_usage_poll = setInterval(port_usage, 1000);
         
         // Send over the configuration
         send_current_configuration();
@@ -270,6 +273,10 @@ function onOpen(openInfo) {
 
 function onClosed(result) {
     clearInterval(serial_poll);
+    clearInterval(port_usage_poll);
+    
+    // delete the port load information from screen
+    $('dt.port-usage').html('');
     
     if (result == 1) {
         connectionId = -1; // reset connection id
@@ -323,6 +330,7 @@ function send_current_configuration() {
 }
 
 var message_buffer = new Array();
+var char_counter = 0;
 function onCharRead(readInfo) {
     if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
         var data = new Uint8Array(readInfo.data);
@@ -336,7 +344,9 @@ function onCharRead(readInfo) {
                 message_buffer = Array();
             } else {            
                 message_buffer.push(data[i]);
-            }    
+            }
+
+            char_counter++;
         }
     }
 }
@@ -426,4 +436,12 @@ function redraw_plot() {
     } else {
         e_averaging_counter.html(0);
     }
+}
+
+function port_usage() {
+    var port_usage = (char_counter * 10 / selected_baud) * 100;    
+    $('dt.port-usage').html(parseInt(port_usage) + '%');
+
+    // reset counter
+    char_counter = 0;
 }
