@@ -17,65 +17,7 @@ var plot_config = {
     overtime_averaging: 0
 };
 
-$(document).ready(function() {
-    port_picker = $('div#port-picker .port select');
-    baud_picker = $('div#port-picker #baud');
-    
-    $('div#port-picker a.refresh').click(function() {
-        console.log("Available port list requested.");
-        port_picker.html('');
-
-        chrome.serial.getPorts(function(ports) {
-            if (ports.length > 0) {
-                // Port list received
-                
-                ports.forEach(function(port) {
-                    $(port_picker).append($("<option/>", {
-                        value: port,
-                        text: port
-                    }));        
-                });
-            } else {
-                $(port_picker).append('<option>NOT FOUND</option>');
-                
-                console.log("No serial ports detected");
-            }
-        });
-    });
-    
-    // software click to refresh port picker select (during initial load)
-    $('div#port-picker a.refresh').click(); 
-
-    $('div#port-picker a.connect').click(function() {
-        var clicks = $(this).data('clicks');
-        
-        if (clicks) { // odd number of clicks
-            chrome.serial.close(connectionId, onClosed);
-            
-            $(this).text('Connect');
-            $(this).removeClass('active');            
-        } else { // even number of clicks         
-            selected_port = String($(port_picker).val());
-            selected_baud = parseInt(baud_picker.val());
-            
-            console.log('Connecting to: ' + selected_port);
-            
-            // Reset pause button if necessary
-            if ($('.pause-resume').data('clicks') == true) {
-                $('.pause-resume').click();
-            }
-            
-            chrome.serial.open(selected_port, {
-                bitrate: selected_baud
-            }, onOpen);
-            
-            $(this).text('Disconnect');  
-            $(this).addClass('active');
-        }
-        
-        $(this).data("clicks", !clicks);
-    });     
-    
+$(document).ready(function() {    
     // Analyzer configuration UI hooks
     $('div#analyzer-configuration select').change(function() {
         // update analyzer config with latest settings
@@ -242,108 +184,6 @@ $(document).ready(function() {
     redraw_plot();
 });
 
-function readPoll() {
-    chrome.serial.read(connectionId, 256, onCharRead);
-}
-
-function onOpen(openInfo) {
-    connectionId = openInfo.connectionId;
-    
-    if (connectionId != -1) {
-        // start polling
-        serial_poll = setInterval(readPoll, 10);
-        plot_poll = setInterval(redraw_plot, 40);
-        port_usage_poll = setInterval(port_usage, 1000);
-        
-        // Send over the configuration
-        send_current_configuration();
-        
-        console.log('Connection established.');
-    } else {
-        console.log('There was a problem while opening the connection.');
-    }
-}
-
-function onClosed(result) {
-    clearInterval(serial_poll);
-    clearInterval(port_usage_poll);
-    
-    // delete the port load information from screen
-    $('dt.port-usage').html('');
-    
-    if (result == 1) {
-        connectionId = -1; // reset connection id
-        console.log('Connection closed successfully.');
-    } else {
-        console.log('There was an error that happened during "connection-close" procedure.');
-    }
-}
-
-function send_current_configuration() {    
-    if (connectionId > 0) { // only send configuration over while connected
-        var ascii_out = "#" + 
-            analyzer_config.start_frequency.toString() + "," + 
-            analyzer_config.stop_frequency.toString() + "," + 
-            analyzer_config.average_samples.toString() + "," + 
-            analyzer_config.step_size.toString() + ",";
-        
-        var bufferOut = new ArrayBuffer(ascii_out.length);
-        var bufView = new Uint8Array(bufferOut);
-        
-        for (var i = 0; i < ascii_out.length; i++) {
-            bufView[i] = ascii_out.charCodeAt(i);
-        }
-
-        // Send over the configuration
-        chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
-            console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
-            
-            // drop current data and re-populate the array
-            var array_size = ((analyzer_config.stop_frequency * 100) - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
-            
-            plot_data[0] = [];
-            plot_data[1] = [];
-            plot_data[2] = [];
-            plot_data[3] = [];
-            plot_data_avr_sum = [];
-            
-            for (var i = 0; i <= array_size; i++) {
-                plot_data[0][i] = [100000, 0];
-                plot_data[1][i] = [100000, 0];
-                plot_data[2][i] = [100000, 0];
-                plot_data[3][i] = [100000, 0];
-                plot_data_avr_sum[i] = [0, 0]; // sum, samples_n
-            }
-            
-            // Update plot
-            plot_options.xaxis.max = analyzer_config.stop_frequency * 100;
-            plot_options.xaxis.min = analyzer_config.start_frequency * 100;  
-        });
-    }
-}
-
-var message_buffer = new Array();
-var char_counter = 0;
-function onCharRead(readInfo) {
-    if (readInfo && readInfo.bytesRead > 0 && readInfo.data) {
-        var data = new Uint8Array(readInfo.data);
-        
-        for (var i = 0; i < data.length; i++) {
-            if (data[i] == 0x0A) { // new line character \n
-                // process message and start receiving a new one
-                process_message(message_buffer);
-                
-                // empty buffer
-                message_buffer = [];
-            } else {            
-                message_buffer.push(data[i]);
-            }
-
-            char_counter++;
-        }
-    }
-}
-
 var last_index = 0;
 function process_message(message_buffer) {
     var message_needle = 0;
@@ -431,10 +271,45 @@ function redraw_plot() {
     }
 }
 
-function port_usage() {
-    var port_usage = (char_counter * 10 / selected_baud) * 100;    
-    $('dt.port-usage').html(parseInt(port_usage) + '%');
+function send_current_configuration() {    
+    if (connectionId > 0) { // only send configuration over while connected
+        var ascii_out = "#" + 
+            analyzer_config.start_frequency.toString() + "," + 
+            analyzer_config.stop_frequency.toString() + "," + 
+            analyzer_config.average_samples.toString() + "," + 
+            analyzer_config.step_size.toString() + ",";
+        
+        var bufferOut = new ArrayBuffer(ascii_out.length);
+        var bufView = new Uint8Array(bufferOut);
+        
+        for (var i = 0; i < ascii_out.length; i++) {
+            bufView[i] = ascii_out.charCodeAt(i);
+        }
 
-    // reset counter
-    char_counter = 0;
+        // Send over the configuration
+        chrome.serial.write(connectionId, bufferOut, function(writeInfo) {
+            console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
+            
+            // drop current data and re-populate the array
+            var array_size = ((analyzer_config.stop_frequency * 100) - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
+            
+            plot_data[0] = [];
+            plot_data[1] = [];
+            plot_data[2] = [];
+            plot_data[3] = [];
+            plot_data_avr_sum = [];
+            
+            for (var i = 0; i <= array_size; i++) {
+                plot_data[0][i] = [100000, 0];
+                plot_data[1][i] = [100000, 0];
+                plot_data[2][i] = [100000, 0];
+                plot_data[3][i] = [100000, 0];
+                plot_data_avr_sum[i] = [0, 0]; // sum, samples_n
+            }
+            
+            // Update plot
+            plot_options.xaxis.max = analyzer_config.stop_frequency * 100;
+            plot_options.xaxis.min = analyzer_config.start_frequency * 100;  
+        });
+    }
 }
