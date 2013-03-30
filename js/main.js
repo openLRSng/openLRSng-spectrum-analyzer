@@ -1,11 +1,6 @@
 var connectionId = -1;
-var port_list;
-var serial_poll; // interval refference
 
-var element_plot;
 var plot;
-var plot_poll; // interval refference
-
 var plot_data = new Array(4);
 var plot_data_avr_sum = new Array();
 
@@ -21,8 +16,6 @@ var plot_config = {
     units: 1,
     overtime_averaging: 0
 };
-
-var port_usage; // interval refference
 
 $(document).ready(function() {
     port_picker = $('div#port-picker .port select');
@@ -341,7 +334,7 @@ function onCharRead(readInfo) {
                 process_message(message_buffer);
                 
                 // empty buffer
-                message_buffer = Array();
+                message_buffer = [];
             } else {            
                 message_buffer.push(data[i]);
             }
