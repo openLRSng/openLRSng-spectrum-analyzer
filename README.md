@@ -18,7 +18,7 @@ Installation
 4. - Click on load unpacked extension and point it to the spectrum analyzer directory (for example D:/openLRSng-spectrum-analyzer)
 5. - You are done
 
-Hows to use
+How to use
 -----------
 You can find the spectrum analyzer icon in your application tab "Apps"
 
