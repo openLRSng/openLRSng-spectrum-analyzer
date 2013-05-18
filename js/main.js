@@ -61,6 +61,7 @@ $(document).ready(function() {
     });
     
     // Populate configuration selects    
+    // Start Frequencies
     var e_start_frequency = $('#start-frequency');
     for (var i = 400; i < 470; i++) {
         e_start_frequency.append($("<option/>", {
@@ -69,6 +70,21 @@ $(document).ready(function() {
         }));        
     }
     
+    for (var i = 848; i < 888; i++) {
+        e_start_frequency.append($("<option/>", {
+            value: i,
+            text: i
+        }));        
+    }
+
+    for (var i = 895; i < 935; i++) {
+        e_start_frequency.append($("<option/>", {
+            value: i,
+            text: i
+        }));        
+    }      
+    
+    // Stop Frequencies
     var e_stop_frequency = $('#stop-frequency');
     for (var i = 401; i < 471; i++) {
         e_stop_frequency.append($("<option/>", {
@@ -76,7 +92,22 @@ $(document).ready(function() {
             text: i
         }));        
     }
+    
+    for (var i = 849; i < 889; i++) {
+        e_stop_frequency.append($("<option/>", {
+            value: i,
+            text: i
+        }));        
+    }    
 
+    for (var i = 896; i < 936; i++) {
+        e_stop_frequency.append($("<option/>", {
+            value: i,
+            text: i
+        }));        
+    }    
+    
+    
     var e_average_samples = $('#average-samples');
     for (var i = 100; i < 1501; i += 100) {
         
