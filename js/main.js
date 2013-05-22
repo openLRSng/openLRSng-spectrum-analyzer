@@ -5,10 +5,10 @@ var plot_data = new Array(4);
 var plot_data_avr_sum = new Array();
 
 var analyzer_config = {
-    start_frequency: 425,
-    stop_frequency:  435,
+    start_frequency: 425000,
+    stop_frequency:  435000,
     average_samples: 500,
-    step_size:       5
+    step_size:       50
 };
 
 var plot_config = {
@@ -63,21 +63,21 @@ $(document).ready(function() {
     // Populate configuration selects    
     // Start Frequencies
     var e_start_frequency = $('#start-frequency');
-    for (var i = 400; i < 470; i++) {
+    for (var i = 400000; i < 470000; i+=1000) {
         e_start_frequency.append($("<option/>", {
             value: i,
             text: i
         }));        
     }
     
-    for (var i = 848; i < 888; i++) {
+    for (var i = 848000; i < 888000; i+=1000) {
         e_start_frequency.append($("<option/>", {
             value: i,
             text: i
         }));        
     }
 
-    for (var i = 895; i < 935; i++) {
+    for (var i = 895000; i < 935000; i+=1000) {
         e_start_frequency.append($("<option/>", {
             value: i,
             text: i
@@ -86,21 +86,21 @@ $(document).ready(function() {
     
     // Stop Frequencies
     var e_stop_frequency = $('#stop-frequency');
-    for (var i = 401; i < 471; i++) {
+    for (var i = 401000; i < 471000; i+=1000) {
         e_stop_frequency.append($("<option/>", {
             value: i,
             text: i
         }));        
     }
     
-    for (var i = 849; i < 889; i++) {
+    for (var i = 849000; i < 889000; i+=1000) {
         e_stop_frequency.append($("<option/>", {
             value: i,
             text: i
         }));        
     }    
 
-    for (var i = 896; i < 936; i++) {
+    for (var i = 896000; i < 936000; i+=1000) {
         e_stop_frequency.append($("<option/>", {
             value: i,
             text: i
@@ -183,12 +183,12 @@ $(document).ready(function() {
         },
         xaxis: {
             noTicks: 10,
-            max: analyzer_config.stop_frequency * 100,
-            min: analyzer_config.start_frequency * 100,
+            max: analyzer_config.stop_frequency,
+            min: analyzer_config.start_frequency,
             tickFormatter: function(x) {
                 var x = parseInt(x);
-                x /= 100;
-                return x + ' MHz';
+                //x /= 100;
+                return x + ' kHz';
             }
         },
         grid: {
@@ -204,10 +204,10 @@ $(document).ready(function() {
             margin: 10,
             fillOpacity: 1,
             trackFormatter: function(x) {
-                var frequency = x.x / 100;
+                var frequency = x.x;
                 var val = x.y;
                 
-                return frequency + ' MHz @ ' + val;
+                return frequency + ' kHz @ ' + val;
             }
         }
     } 
@@ -249,7 +249,7 @@ function process_message(message_buffer) {
         }
     }
     
-    var index = (message.frequency - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
+    var index = (message.frequency - analyzer_config.start_frequency) / analyzer_config.step_size;
     
     if (index <= plot_data[0].length) {     
         // doing pre-comupation to save (optimize) cycles
@@ -282,7 +282,7 @@ function process_message(message_buffer) {
             }
         }
         
-        $('div#peak-detection').html('<li>Peak: ' + parseFloat(peak[0] / 100) + ' MHz @ ' + peak[1] + '</li>');
+        $('div#peak-detection').html('<li>Peak: ' + parseFloat(peak[0]) + ' MHz @ ' + peak[1] + '</li>');
     }
     
     last_index = index;
@@ -322,7 +322,7 @@ function send_current_configuration() {
             console.log("Wrote: " + writeInfo.bytesWritten + " bytes");
             
             // drop current data and re-populate the array
-            var array_size = ((analyzer_config.stop_frequency * 100) - (analyzer_config.start_frequency * 100)) / analyzer_config.step_size;
+            var array_size = ((analyzer_config.stop_frequency) - (analyzer_config.start_frequency)) / analyzer_config.step_size;
             
             plot_data[0] = [];
             plot_data[1] = [];
@@ -339,8 +339,8 @@ function send_current_configuration() {
             }
             
             // Update plot
-            plot_options.xaxis.max = analyzer_config.stop_frequency * 100;
-            plot_options.xaxis.min = analyzer_config.start_frequency * 100;  
+            plot_options.xaxis.max = analyzer_config.stop_frequency;
+            plot_options.xaxis.min = analyzer_config.start_frequency;  
         });
     }
 }
