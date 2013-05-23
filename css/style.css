@@ -118,7 +118,14 @@ body {
         margin-left: 130px;
     }
     #analyzer-configuration select {
-        width: 80px;
+        width: 60px;
+        border: 1px solid silver;
+    }
+    #analyzer-configuration input {
+        width: 50px;
+        
+        padding: 0 5px 0 5px;
+        
         border: 1px solid silver;
     }
 

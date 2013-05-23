@@ -19,12 +19,24 @@ var plot_config = {
 
 $(document).ready(function() {    
     // Analyzer configuration UI hooks
-    $('div#analyzer-configuration select').change(function() {
+    $('div#analyzer-configuration select, div#analyzer-configuration input').change(function() {
         // update analyzer config with latest settings
-        analyzer_config.start_frequency = parseInt($('#start-frequency').val());
-        analyzer_config.stop_frequency = parseInt($('#stop-frequency').val());
+        analyzer_config.start_frequency = parseFloat($('#start-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
+        analyzer_config.stop_frequency = parseFloat($('#stop-frequency').val()).toFixed(1) * 1000; // convert from MHz to kHz
         analyzer_config.average_samples = parseInt($('#average-samples').val());
         analyzer_config.step_size = parseInt($('#step-size').val());
+        
+        // simple min/max validation
+        if (analyzer_config.stop_frequency <= analyzer_config.start_frequency) {
+            analyzer_config.stop_frequency = analyzer_config.start_frequency + 1000; // + 1kHz
+            
+            // also update UI with the corrected value
+            $('#stop-frequency').val(parseFloat(analyzer_config.stop_frequency / 1000).toFixed(1));
+        }        
+        
+        // loose focus (as it looks weird with focus on after changes are done)
+        $('#start-frequency').blur();
+        $('#stop-frequency').blur();
         
         send_current_configuration();     
     });
@@ -60,53 +72,8 @@ $(document).ready(function() {
         send_current_configuration(); 
     });
     
-    // Populate configuration selects    
-    // Start Frequencies
     var e_start_frequency = $('#start-frequency');
-    for (var i = 400000; i < 470000; i+=1000) {
-        e_start_frequency.append($("<option/>", {
-            value: i,
-            text: i
-        }));        
-    }
-    
-    for (var i = 848000; i < 888000; i+=1000) {
-        e_start_frequency.append($("<option/>", {
-            value: i,
-            text: i
-        }));        
-    }
-
-    for (var i = 895000; i < 935000; i+=1000) {
-        e_start_frequency.append($("<option/>", {
-            value: i,
-            text: i
-        }));        
-    }      
-    
-    // Stop Frequencies
     var e_stop_frequency = $('#stop-frequency');
-    for (var i = 401000; i < 471000; i+=1000) {
-        e_stop_frequency.append($("<option/>", {
-            value: i,
-            text: i
-        }));        
-    }
-    
-    for (var i = 849000; i < 889000; i+=1000) {
-        e_stop_frequency.append($("<option/>", {
-            value: i,
-            text: i
-        }));        
-    }    
-
-    for (var i = 896000; i < 936000; i+=1000) {
-        e_stop_frequency.append($("<option/>", {
-            value: i,
-            text: i
-        }));        
-    }    
-    
     
     var e_average_samples = $('#average-samples');
     for (var i = 100; i < 1501; i += 100) {
@@ -126,8 +93,8 @@ $(document).ready(function() {
     }
     
     // Define some defualt values
-    e_start_frequency.val(analyzer_config.start_frequency);
-    e_stop_frequency.val(analyzer_config.stop_frequency);
+    e_start_frequency.val(parseFloat(analyzer_config.start_frequency / 1000).toFixed(1));
+    e_stop_frequency.val(parseFloat(analyzer_config.stop_frequency / 1000).toFixed(1));
     e_average_samples.val(analyzer_config.average_samples);
     e_step_size.val(analyzer_config.step_size);
     
