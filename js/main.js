@@ -282,7 +282,7 @@ function process_message(message_buffer) {
             }
         }
         
-        $('div#peak-detection').html('<li>Peak: ' + parseFloat(peak[0]) + ' MHz @ ' + peak[1] + '</li>');
+        $('div#peak-detection').html('<li>Peak: ' + parseFloat(peak[0]) + ' kHz @ ' + peak[1] + '</li>');
     }
     
     last_index = index;
@@ -331,10 +331,10 @@ function send_current_configuration() {
             plot_data_avr_sum = [];
             
             for (var i = 0; i <= array_size; i++) {
-                plot_data[0][i] = [100000, 0];
-                plot_data[1][i] = [100000, 0];
-                plot_data[2][i] = [100000, 0];
-                plot_data[3][i] = [100000, 0];
+                plot_data[0][i] = [1000000, 0];
+                plot_data[1][i] = [1000000, 0];
+                plot_data[2][i] = [1000000, 0];
+                plot_data[3][i] = [1000000, 0];
                 plot_data_avr_sum[i] = [0, 0]; // sum, samples_n
             }
             
