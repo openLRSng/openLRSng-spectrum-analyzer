@@ -12,6 +12,12 @@ Default baudrate (also recommended baud rate) for the TX or RX unit is 115200 (d
 
 Installation
 ------------
+1. - Visit https://chrome.google.com/webstore/detail/openlrsng-spectrum-analyz/ncoebmkblcbnabmkgkchekgakdfkejek
+2. - Click add to Chrome
+3. - You are done
+
+Alternative way
+
 1. - Clone the repo to any local directory or download it as zip
 2. - Start chromium or google chrome and go to tools -> extension
 3. - Check the "Developer mode" checkbox
