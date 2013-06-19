@@ -16,6 +16,18 @@ $(document).ready(function() {
                         text: port
                     }));        
                 });
+                
+                chrome.storage.local.get('last_used_port', function(result) {
+                    // if last_used_port was set, we try to select it
+                    if (typeof result.last_used_port != 'undefined') {
+                        // check if same port exists, if it does, select it
+                        ports.forEach(function(port) {
+                            if (port == result.last_used_port) {
+                                $(port_picker).val(result.last_used_port);
+                            }
+                        });
+                    }
+                });
             } else {
                 $(port_picker).append('<option>NOT FOUND</option>');
                 
@@ -62,6 +74,25 @@ function onOpen(openInfo) {
     connectionId = openInfo.connectionId;
     
     if (connectionId != -1) {
+        // save selected port with chrome.storage if the port differs
+        chrome.storage.local.get('last_used_port', function(result) {
+            if (typeof result.last_used_port != 'undefined') {
+                if (result.last_used_port != selected_port) {
+                    // last used port doesn't match the one found in local db, we will store the new one
+                    chrome.storage.local.set({'last_used_port': selected_port}, function() {
+                        // Debug message is currently disabled (we dont need to spam the console log with that)
+                        // console.log('Last selected port was saved in chrome.storage.');
+                    });
+                }
+            } else {
+                // variable isn't stored yet, saving
+                chrome.storage.local.set({'last_used_port': selected_port}, function() {
+                    // Debug message is currently disabled (we dont need to spam the console log with that)
+                    // console.log('Last selected port was saved in chrome.storage.');
+                });
+            }
+        });
+    
         // start polling
         serial_poll = setInterval(readPoll, 10);
         plot_poll = setInterval(redraw_plot, 40);
