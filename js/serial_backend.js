@@ -72,6 +72,7 @@ $(document).ready(function() {
 
 function onOpen(openInfo) {
     connectionId = openInfo.connectionId;
+    backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
     
     if (connectionId != -1) {
         // save selected port with chrome.storage if the port differs
@@ -116,6 +117,8 @@ function onClosed(result) {
     
     if (result == 1) {
         connectionId = -1; // reset connection id
+        backgroundPage.connectionId = connectionId; // pass latest connectionId to the background page
+        
         console.log('Connection closed successfully.');
     } else {
         console.log('There was an error that happened during "connection-close" procedure.');
