@@ -131,9 +131,13 @@ $(document).ready(function() {
             $(this).text('Pause');
             $(this).removeClass('resume');            
         } else { // even number of clicks
-            clearInterval(serial_poll);
-            
-            clearInterval(plot_poll);
+            try {
+                clearInterval(serial_poll);
+                clearInterval(plot_poll);
+            } catch (error) {
+                //if one of the interval references doesn't exist, we will "stop" / return
+                return;
+            };
             
             plot_options.mouse.track = true;
             redraw_plot();
