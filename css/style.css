@@ -42,8 +42,10 @@ body {
 }
 
 .controls {
-    height: 200px;
     padding-top: 10px;
+    
+    overflow: hidden;
+    
     border-top: 1px solid #575652;
     background-color: #cccac0;
 }
@@ -165,7 +167,7 @@ body {
     margin-top: 2px;
     margin-left: 40px;
     
-    width: 150px;
+    width: 180px;
     height: 85px;
     padding: 5px 10px 0 10px;
     
