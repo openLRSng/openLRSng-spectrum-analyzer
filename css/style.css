@@ -44,6 +44,8 @@ body {
 .controls {
     padding-top: 10px;
     
+    height: 109px;
+    
     overflow: hidden;
     
     border-top: 1px solid #575652;
