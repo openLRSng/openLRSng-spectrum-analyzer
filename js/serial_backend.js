@@ -1,6 +1,7 @@
 $(document).ready(function() {
     port_picker = $('div#port-picker .port select');
     baud_picker = $('div#port-picker #baud');
+    delay_picker = $('div#port-picker #delay');
     
     $('div#port-picker a.refresh').click(function() {
         console.log("Available port list requested.");
@@ -45,11 +46,14 @@ $(document).ready(function() {
         if (clicks) { // odd number of clicks
             chrome.serial.close(connectionId, onClosed);
             
+            clearTimeout(connection_delay);
+            
             $(this).text('Connect');
             $(this).removeClass('active');            
         } else { // even number of clicks         
             selected_port = String($(port_picker).val());
             selected_baud = parseInt(baud_picker.val());
+            connection_delay = parseInt(delay_picker.val());
             
             console.log('Connecting to: ' + selected_port);
             
@@ -94,13 +98,15 @@ function onOpen(openInfo) {
             }
         });
     
-        // start polling
-        serial_poll = setInterval(readPoll, 10);
-        plot_poll = setInterval(redraw_plot, 40);
-        port_usage_poll = setInterval(port_usage, 1000);
-        
-        // Send over the configuration
-        send_current_configuration();
+        connection_delay = setTimeout(function() {
+            // start polling
+            serial_poll = setInterval(readPoll, 10);
+            plot_poll = setInterval(redraw_plot, 40);
+            port_usage_poll = setInterval(port_usage, 1000);
+            
+            // Send over the configuration
+            send_current_configuration();
+        }, connection_delay * 1000);
         
         console.log('Connection established.');
     } else {
