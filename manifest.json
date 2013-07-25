@@ -1,7 +1,7 @@
 {
     "name": "openLRSng - Spectrum Analyzer",
     "description": "Cool crossplatform Spectrum Analyzer GUI for openLRSng project",
-    "version": "0.2",
+    "version": "0.3",
     "manifest_version": 2,
     "minimum_chrome_version": "23", 
     
