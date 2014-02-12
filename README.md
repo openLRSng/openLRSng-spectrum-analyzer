@@ -1,3 +1,10 @@
+This utility has been deprecated on 12.02.2014
+----------------------------------------------
+
+Please use openLRSng - Configurator instead
+https://chrome.google.com/webstore/detail/openlrsng-configurator/focgpgmpinbadijfcdimbdkgnpndjnkl
+
+
 openLRSng Spectrum Analyzer
 =================================================
 This project was designed to work with with openLRSng code @ https://github.com/kh4/openLRSng
